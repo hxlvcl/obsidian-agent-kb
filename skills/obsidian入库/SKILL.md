@@ -132,7 +132,12 @@ tags: ["标签1", "标签2"]
 - 用户审一次，确认/修改 Wiki 变更方案
 
 #### 第12步：执行 Wiki 变更
-- 增量更新 / 新建概念页 / `--wiki-index` 追加
+- **新建概念页**：用 Wiki 模板创建，**同时追加到 `_index.md`**：
+  ```bash
+  python scripts/safe_link_appender.py --wiki-index --category "01-科技" --entry "[[概念名]] — 摘要"
+  ```
+- **增量更新**：正文末尾追加 `### 补充观点`
+- **仅索引**：
   ```bash
   python scripts/safe_link_appender.py --wiki-index --category "01-科技" --entry "[[文章]] — 摘要"
   ```
