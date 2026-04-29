@@ -23,7 +23,7 @@ import os
 import re
 import sys
 
-VAULT = r"{{VAULT_PATH}}"
+VAULT = r"D:\Obsidian知识库\知识库"
 ALLOWED = [r"00-收件箱", r"02-Wiki"]
 BLOCKED = [r"01-素材库", r"03-思考", r"04-项目", r"05-产出", r"06-系统"]
 
@@ -103,7 +103,7 @@ def new_article(target, links):
 
 
 def wiki_concept(target, article):
-    """在 Wiki 概念页末尾追加关联文章（带 - 列表符）"""
+    """在 Wiki 概念页的 **关联文章** 区块内追加链接"""
     ok, err = is_allowed(target)
     if not ok:
         print(f"[REJECT] {err}")
@@ -123,14 +123,19 @@ def wiki_concept(target, article):
 
     line = f"- [[{article}]]"
 
-    # 已有 **关联文章** 区块：追加一行（问题2：检查末尾换行避免多余空行）
-    if "**关联文章**" in content:
-        if content.endswith("\n"):
-            content += f"{line}\n"
-        else:
-            content += f"\n{line}\n"
+    # 找到 **关联文章** 区块，在区块内追加
+    block_match = re.search(r"\*\*关联文章\*\*((?:\n.*?)*?)(?=\n## |\n---|\Z)", content, re.DOTALL)
+    if block_match:
+        block_start = block_match.start()
+        block_end = block_match.end()
+        block_text = block_match.group(0)
+        # 去掉占位符，追加新链接
+        block_text = block_text.replace("（待统一建链）", "")
+        block_text = block_text.rstrip()
+        block_text += f"\n{line}"
+        content = content[:block_start] + block_text + content[block_end:]
     else:
-        # 没有则新建区块
+        # 没有区块 → 末尾新建
         content = content.rstrip() + f"\n\n**关联文章**\n\n{line}\n"
 
     try:
