@@ -108,6 +108,23 @@ AI 默默干了一堆活，你不知道它做了什么、什么时候做的、�
 
 ---
 
+## 所需 Obsidian 插件
+
+这些插件不是硬依赖，但强烈建议安装——它们让整个方案更好用：
+
+| 插件 | 用途 | 下载 |
+|------|------|------|
+| **Templater** | 模板自动化——入库时自动填充 frontmatter | Obsidian 社区插件市场 |
+| **Smart Connections** | 向量索引——AI 检索时做语义关联 | 同上 |
+| **Calendar** | 日历视图——按日期浏览笔记 | 同上 |
+| **Obsidian Git** | 自动备份——30 分钟自动提交，Git 版本控制的兜底层 | 同上 |
+
+安装方法：Obsidian 设置 → 社区插件 → 浏览 → 搜索插件名 → 安装 → 启用。
+
+> ⚠️ 本项目**不需要** Dataview 插件。`_index.md` 是静态文件，靠 `safe_link_appender.py --wiki-index` 追加条目。
+
+---
+
 ## 快速开始
 
 只想跑起来的看这里。详细说明见[安装详解](#安装详解)。
@@ -569,7 +586,8 @@ Git log 只告诉你"什么时候提交了"，不告诉你"为什么"。
 
 - Python 3.8+
 - Git
-- Obsidian（建议 v1.5+，中文路径支持更好）
+- Obsidian v1.5+
+- Obsidian 插件（推荐）：Templater、Smart Connections、Calendar、Obsidian Git
 
 ---
 
