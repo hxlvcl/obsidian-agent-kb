@@ -1,49 +1,22 @@
-"""supplement_linker.py — 补充观点自动回链脚本
+"""supplement_linker.py — 补充观点链接插入脚本
 
-扫描所有 Wiki 概念页，找到 `#### 来自《文章名》` 的补充观点，
-检查对应的 [[文章名]] 是否已在页面的 **关联文章** 区块中。
-如不在，自动追加 wiki-concept 回链。
-
-用于阶段三步 15 之前执行，保证补充观点不漏链。
+扫描所有 Wiki 概念页，找到 `#### 来自《文章名》`，
+在标题下一行插入 `- [[文章名]]`（如果还不存在）。
 """
 
 import os
 import re
-import subprocess
-import sys
 
 VAULT = r"{{VAULT_PATH}}"
-WIKI_DIR = os.path.join(VAULT, "02-Wiki")
-SCRIPT = "scripts/safe_link_appender.py"
 
 
-def scan_wiki_files():
-    """扫描所有 Wiki 概念页（不含 _index.md）"""
+def scan_wiki_files(wiki_dir):
     files = []
-    for dirpath, _, filenames in os.walk(WIKI_DIR):
+    for dirpath, _, filenames in os.walk(wiki_dir):
         for fn in filenames:
             if fn.endswith(".md") and fn != "_index.md":
                 files.append(os.path.join(dirpath, fn))
     return files
-
-
-def extract_supplement_articles(content):
-    """提取 #### 来自《文章名》中的文章名称"""
-    articles = []
-    for m in re.finditer(r"####\s+来自《(.+?)》", content):
-        articles.append(m.group(1))
-    return articles
-
-
-def extract_linked_articles(content):
-    """提取 **关联文章** 区块中的所有 [[链接]]"""
-    block = re.search(r"\*\*关联文章\*\*(.*?)(?=\n#{2,3} |\n---|\Z)", content, re.DOTALL)
-    if not block:
-        return set()
-    links = re.findall(r"\[\[(.+?)\]\]", block.group(0))
-    # 同时匹配 - [[...]] 格式
-    dash_links = re.findall(r"- \[\[(.+?)\]\]", block.group(0))
-    return set(links) | set(dash_links)
 
 
 def main():
@@ -51,41 +24,47 @@ def main():
         print("[ERROR] 请先设置 VAULT 路径")
         return
 
-    wiki_files = scan_wiki_files()
-    missing = []
+    wiki_dir = os.path.join(VAULT, "02-Wiki")
+    wiki_files = scan_wiki_files(wiki_dir)
+    total = 0
 
     for fp in wiki_files:
         with open(fp, "r", encoding="utf-8") as f:
             content = f.read()
 
-        supplement_articles = extract_supplement_articles(content)
-        linked_articles = extract_linked_articles(content)
+        # 收集所有匹配位置（从后往前处理，避免偏移）
+        matches = list(re.finditer(r"(####\s+来自《(.+?)》)\n", content))
+        fixed_in_file = 0
 
-        rel = os.path.relpath(fp, VAULT)
-        for article in supplement_articles:
-            if article not in linked_articles:
-                missing.append((rel, article))
+        for m in reversed(matches):
+            header = m.group(1)
+            article = m.group(2)
+            expected = f"- [[{article}]]"
 
-    if not missing:
-        print("✅ 所有补充观点已回链")
-        return
+            # 检查下一行
+            pos = m.end()
+            nl = content.find("\n", pos)
+            if nl == -1:
+                nl = len(content)
+            next_line = content[pos:nl]
 
-    print(f"🔗 发现 {len(missing)} 条缺失回链：\n")
-    for wiki_page, article in missing:
-        print(f"  {wiki_page} ← {article}")
+            if next_line.strip() == expected:
+                continue
 
-    # 自动补链
-    print("\n--- 自动补链 ---")
-    for wiki_page, article in missing:
-        target = os.path.join(VAULT, wiki_page)
-        result = subprocess.run(
-            [sys.executable, os.path.join(os.path.dirname(__file__), SCRIPT),
-             "--wiki-concept", "--target", target, "--article", article],
-            capture_output=True, text=True, cwd=VAULT
-        )
-        print(f"  {result.stdout.strip()}")
+            # 从后往前插入
+            content = content[:pos] + expected + "\n" + content[pos:]
+            fixed_in_file += 1
 
-    print(f"\n✅ 完成 {len(missing)} 条回链")
+        if fixed_in_file > 0:
+            with open(fp, "w", encoding="utf-8") as f:
+                f.write(content)
+            print(f"  {os.path.relpath(fp, VAULT)}: {fixed_in_file} 条")
+        total += fixed_in_file
+
+    if total == 0:
+        print("[OK] 所有补充观点已有链接")
+    else:
+        print(f"\n[OK] 共插入 {total} 条链接")
 
 
 if __name__ == "__main__":
