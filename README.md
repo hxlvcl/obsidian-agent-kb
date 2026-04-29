@@ -22,7 +22,7 @@
 ### 第一步：下载项目
 
 ```bash
-git clone https://github.com/{{GITHUB_USER}}/obsidian-agent-kb.git
+git clone https://github.com/hxlvcl/obsidian-agent-kb.git
 ```
 
 ### 第二步：改配置
