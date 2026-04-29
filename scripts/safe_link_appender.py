@@ -23,9 +23,29 @@ import os
 import re
 import sys
 
-VAULT = r"{{VAULT_PATH}}"
+VAULT = r"D:\Obsidian知识库\知识库"
 ALLOWED = [r"00-收件箱", r"02-Wiki"]
 BLOCKED = [r"01-素材库", r"03-思考", r"04-项目", r"05-产出", r"06-系统"]
+
+
+def resolve_filename(partial, vault):
+    """将部分文件名解析为完整文件名（去 .md）。"""
+    if not partial:
+        return partial
+    # 先查精确匹配
+    full_with_ext = partial + ".md"
+    for root, _, fns in os.walk(vault):
+        if full_with_ext in fns:
+            return partial  # 已是完整名
+    # 前缀匹配 → 最长胜出
+    best = None
+    for root, _, fns in os.walk(vault):
+        for fn in fns:
+            if fn.startswith(partial) and fn.endswith(".md"):
+                full = fn[:-3]
+                if best is None or len(full) > len(best):
+                    best = full
+    return best if best else partial  # 找不到就原样返回
 
 
 def is_allowed(path):
@@ -60,6 +80,7 @@ def new_article(target, links):
         return False
 
     new_links = [l.strip() for l in links.split(",") if l.strip()]
+    new_links = [resolve_filename(l, VAULT) for l in new_links]
 
     placeholder = "（待统一建链）"
 
@@ -121,10 +142,11 @@ def wiki_concept(target, article):
         print(f"[ERROR] 读取失败：{target} — {e}")
         return False
 
+    article = resolve_filename(article, VAULT)
     line = f"- [[{article}]]"
 
     # 找到 **关联文章** 区块，在区块内追加
-    block_match = re.search(r"\*\*关联文章\*\*((?:\n.*?)*?)(?=\n## |\n---|\Z)", content, re.DOTALL)
+    block_match = re.search(r"\*\*关联文章\*\*((?:\n.*?)*?)(?=\n#{2,3} |\n---|\Z)", content, re.DOTALL)
     if block_match:
         block_start = block_match.start()
         block_end = block_match.end()
@@ -132,7 +154,7 @@ def wiki_concept(target, article):
         # 去掉占位符，追加新链接
         block_text = block_text.replace("（待统一建链）", "")
         block_text = block_text.rstrip()
-        block_text += f"\n{line}"
+        block_text += f"\n{line}\n"
         content = content[:block_start] + block_text + content[block_end:]
     else:
         # 没有区块 → 末尾新建
