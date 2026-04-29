@@ -1,13 +1,40 @@
-"""supplement_linker.py — 补充观点链接插入脚本
+"""supplement_linker.py — 补充观点链接插入+验证脚本
 
 扫描所有 Wiki 概念页，找到 `#### 来自《文章名》`，
-在标题下一行插入 `- [[文章名]]`（如果还不存在）。
+解析为完整文件名后在标题下一行插入 `- [[完整文件名]]`。
 """
 
 import os
 import re
 
 VAULT = r"{{VAULT_PATH}}"
+
+
+def build_name_index(vault):
+    """返回 {前缀: 完整文件名} 映射"""
+    index = {}
+    for root, _, fns in os.walk(vault):
+        for fn in fns:
+            if fn.endswith(".md"):
+                index[fn] = fn
+    return index
+
+
+def resolve_article(header_text, name_index):
+    """用 #### 来自《》里的短名解析完整文件名"""
+    # 先精确匹配
+    exact = header_text + ".md"
+    if exact in name_index:
+        return exact[:-3]  # 去掉 .md
+
+    # 前缀匹配 — 找最优（最长前缀胜出）
+    candidates = []
+    for full in name_index:
+        if full.startswith(header_text):
+            candidates.append(full[:-3])
+    if candidates:
+        return max(candidates, key=len)
+    return None
 
 
 def scan_wiki_files(wiki_dir):
@@ -26,22 +53,26 @@ def main():
 
     wiki_dir = os.path.join(VAULT, "02-Wiki")
     wiki_files = scan_wiki_files(wiki_dir)
+    name_index = build_name_index(VAULT)
     total = 0
+    unresolvable = []
 
     for fp in wiki_files:
         with open(fp, "r", encoding="utf-8") as f:
             content = f.read()
 
-        # 收集所有匹配位置（从后往前处理，避免偏移）
-        matches = list(re.finditer(r"(####\s+来自《(.+?)》)\n", content))
+        matches = list(re.finditer(r"####\s+来自《(.+?)》\n", content))
         fixed_in_file = 0
 
         for m in reversed(matches):
-            header = m.group(1)
-            article = m.group(2)
-            expected = f"- [[{article}]]"
+            header_text = m.group(1)
+            full_name = resolve_article(header_text, name_index)
 
-            # 检查下一行
+            if full_name is None:
+                unresolvable.append((os.path.relpath(fp, VAULT), header_text))
+                continue
+
+            expected = f"- [[{full_name}]]"
             pos = m.end()
             nl = content.find("\n", pos)
             if nl == -1:
@@ -51,14 +82,14 @@ def main():
             if next_line.strip() == expected:
                 continue
 
-            # 从后往前插入
             content = content[:pos] + expected + "\n" + content[pos:]
             fixed_in_file += 1
 
         if fixed_in_file > 0:
             with open(fp, "w", encoding="utf-8") as f:
                 f.write(content)
-            print(f"  {os.path.relpath(fp, VAULT)}: {fixed_in_file} 条")
+            rel = os.path.relpath(fp, VAULT).replace("\\", "/")
+            print(f"  {rel}: {fixed_in_file} 条")
         total += fixed_in_file
 
     if total == 0:
@@ -66,14 +97,13 @@ def main():
     else:
         print(f"\n[OK] 共插入 {total} 条链接")
 
-    # 验证：所有补充观点链接必须命中实际文件名
-    print("\n--- 验证链接 ---")
-    all_names = set()
-    for root, _, fns in os.walk(VAULT):
-        for fn in fns:
-            if fn.endswith(".md"):
-                all_names.add(fn)
+    if unresolvable:
+        print(f"\n--- 无法解析 ({len(unresolvable)} 条) ---")
+        for wiki_page, header in unresolvable:
+            print(f"  {wiki_page}: 《{header}》")
 
+    # 验证（路径改成全库扫描）
+    print("\n--- 验证链接 ---")
     broken = 0
     for fp in wiki_files:
         with open(fp, "r", encoding="utf-8") as f:
@@ -83,8 +113,8 @@ def main():
             continue
         for m in re.finditer(r"\[\[(.+?)\]\]", c[supp:]):
             link = m.group(1)
-            found = any(name.startswith(link) for name in all_names)
-            if not found:
+            full = link + ".md"
+            if full not in name_index:
                 rel = os.path.relpath(fp, VAULT).replace("\\", "/")
                 print(f"  [BLANK] {rel}: [[{link}]]")
                 broken += 1
