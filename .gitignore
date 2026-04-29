@@ -1,0 +1,11 @@
+.obsidian/
+.learnings/
+browser/
+backup/
+dialog/
+tool_result/
+sessions/
+*.jsonl
+__pycache__/
+*.pyc
+_desensitize.py
