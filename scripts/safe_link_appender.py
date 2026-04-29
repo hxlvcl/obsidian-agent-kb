@@ -190,7 +190,7 @@ def wiki_concept(target, article):
 
 
 def wiki_index(category, entry):
-    """在 _index.md 对应分类末尾追加索引条目（问题3：不依赖占位符，不产生多余空行）"""
+    """在 _index.md 对应分类末尾追加索引条目（不依赖占位符，不产生多余空行）"""
     target = os.path.join(VAULT, "02-Wiki", "_index.md")
     ok, err = is_allowed(target)
     if not ok:
@@ -209,6 +209,9 @@ def wiki_index(category, entry):
         print(f"[ERROR] _index.md 中未找到分类：{cat_header}")
         return False
 
+    # 自动加粗 [[链接]] 部分
+    entry = re.sub(r"(\[\[.+?\]\])", r"**\1**", entry)
+
     # 找到下一个分类标题或文件末尾
     cat_pos = content.index(cat_header)
     after_header = content.index("\n", cat_pos) + 1
@@ -216,7 +219,7 @@ def wiki_index(category, entry):
     if next_cat == -1:
         next_cat = len(content)
 
-    # 问题3：掐掉分类末尾多余空行再插入
+    # 掐掉分类末尾多余空行再插入
     prefix = content[:next_cat].rstrip()
     suffix = content[next_cat:]
     content = prefix + f"\n- {entry}\n" + suffix
