@@ -66,6 +66,34 @@ def main():
     else:
         print(f"\n[OK] 共插入 {total} 条链接")
 
+    # 验证：所有补充观点链接必须命中实际文件名
+    print("\n--- 验证链接 ---")
+    all_names = set()
+    for root, _, fns in os.walk(VAULT):
+        for fn in fns:
+            if fn.endswith(".md"):
+                all_names.add(fn)
+
+    broken = 0
+    for fp in wiki_files:
+        with open(fp, "r", encoding="utf-8") as f:
+            c = f.read()
+        supp = c.find("### 补充观点")
+        if supp < 0:
+            continue
+        for m in re.finditer(r"\[\[(.+?)\]\]", c[supp:]):
+            link = m.group(1)
+            found = any(name.startswith(link) for name in all_names)
+            if not found:
+                rel = os.path.relpath(fp, VAULT).replace("\\", "/")
+                print(f"  [BLANK] {rel}: [[{link}]]")
+                broken += 1
+
+    if broken == 0:
+        print("  [OK] 无悬空链接")
+    else:
+        print(f"\n  [WARN] 共 {broken} 条悬空链接，请手动修正")
+
 
 if __name__ == "__main__":
     main()
