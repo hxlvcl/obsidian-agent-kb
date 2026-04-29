@@ -29,9 +29,9 @@ metadata:
 
 ## 前置条件
 
-1. **读取规则文件** — `{{VAULT_PATH}}\知识库管理指南.md` 和 `AGENTS.md`
+1. **读取规则文件** — `D:\Obsidian知识库\知识库\知识库管理指南.md` 和 `AGENTS.md`
 2. **⚠️ Git 快照** — 执行 `python scripts/git_control.py pre "入库整理"`
-3. **读取模板** — `{{VAULT_PATH}}\06-系统/模板/新笔记.md` 和 `06-系统/模板/Wiki概念页.md`
+3. **读取模板** — `D:\Obsidian知识库\知识库\06-系统/模板/新笔记.md` 和 `06-系统/模板/Wiki概念页.md`
 
 ## 入库流程（三阶段）
 
@@ -144,9 +144,11 @@ tags: ["标签1", "标签2"]
 
 ### 阶段三：统一建链 🔗
 
-#### 第12步：扫描全库
-- 读取本次入库的全部文章 + 涉及的全部 Wiki 概念页
-- 读取 `01-素材库/` 和 `02-Wiki/` 中所有已有文章
+#### 第12步：扫描全库 + 自动补回链
+- 读取本次入库的全部文章 + 涉及的全部 Wiki 概念页 + 已有文章
+- **先跑** `python scripts/supplement_linker.py`：
+  - 扫描 Wiki 页 `#### 来自《文章名》` → 全库前缀解析完整文件名 → 插入 `- [[完整文件名]]`
+  - 插完验证每条链接精确命中 `.md` 文件
 
 #### 第13步：提关联方案（等用户审核）
 按表格列出，**每行一个关联关系**：
@@ -169,15 +171,13 @@ tags: ["标签1", "标签2"]
 | 表格行 | → 命令 |
 |--------|--------|
 | `A \| B \| 同主题` | `--new-article --target "00-收件箱/A.md" --links "B"` |
-| `A \| C \| 同作者` | `--new-article --target "00-收件箱/A.md" --links "C"` |
 | 涉及 Wiki 概念页 | `--wiki-concept --target "02-Wiki/xx/概念.md" --article "A"` |
 | 索引无概念页 | `--wiki-index --category "01-科技" --entry "[[A]] — 摘要"` |
 
-同一篇文章多次调用自动累积去重。
+同一篇文章多次调用自动累积去重。⚠️ 脚本自动解析完整文件名（短名→全库前缀匹配）。`--new-article` 自动拦截 Wiki 概念页链接。
 
 ```bash
 python scripts/safe_link_appender.py --new-article --target "00-收件箱/A.md" --links "B"
-python scripts/safe_link_appender.py --new-article --target "00-收件箱/A.md" --links "C"
 python scripts/safe_link_appender.py --wiki-concept --target "02-Wiki/01-科技/xx.md" --article "A"
 python scripts/safe_link_appender.py --wiki-index --category "01-科技" --entry "[[A]] — 摘要"
 ```
