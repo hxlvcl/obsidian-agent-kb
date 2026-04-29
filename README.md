@@ -356,7 +356,8 @@ AI 会：
 **你在这一步做什么**：审核关联方案。
 
 AI 会：
-1. 扫描全库，提关联方案表格，**每行一个关联关系**：
+1. 先跑 `python scripts/supplement_linker.py`，自动扫描 Wiki 补充观点→补回链→验证悬空
+2. 扫描全库，提关联方案表格，**每行一个关联关系**：
 
 | 文章 | 关联文章 | 理由 |
 |------|---------|------|
@@ -397,8 +398,14 @@ python scripts/safe_link_appender.py --wiki-index --category "01-科技" --entry
 | 模式 | 命令 | 用途 |
 |------|------|------|
 | `--new-article` | `--target "收件箱/文章.md" --links "目标"` | 在文章末尾的 `**关联文章**` 区块追加链接 |
-| `--wiki-concept` | `--target "Wiki/概念页.md" --article "新文章"` | 在 Wiki 概念页追加文章来源 |
-| `--wiki-index` | `--category "01-科技" --entry "[[文章]] — 摘要"` | 在 `_index.md` 追加索引条目 |
+| `--wiki-concept` | `--target "Wiki/概念页.md" --article "新文章"` | 在 Wiki 概念页 `**关联文章**` 区块追加文章来源 |
+| `--wiki-index` | `--category "01-科技" --entry "[[文章]] — 摘要"` | 在 `_index.md` 追加索引条目，**自动加粗 `[[链接]]`** |
+
+**v4.3 新增功能**：
+
+- **短名自动解析**：`--links "alchaincyfnuwa"` 自动全库前缀匹配→完整文件名，不再写悬空链接
+- **Wiki 概念页拦截**：`--new-article` 模式下，若解析后目标为 `02-Wiki/` 下的页面，自动 `[REJECT]`，防止文章关联文章误链 Wiki
+- **正则修复**：`wiki_concept` 区块正则可同时截断 `##` 和 `###`，不再吞掉补充观点
 
 **安全机制**：
 
@@ -411,6 +418,25 @@ python scripts/safe_link_appender.py --wiki-index --category "01-科技" --entry
 黑名单：`01-素材库/`、`03-思考/`、`04-项目/`、`05-产出/`、`06-系统/`
 
 **追加模式**：同一篇文章多次调用自动累积，不会覆盖已有链接。如果链接已存在，自动跳过。
+
+### supplement_linker.py
+
+**作用**：入库阶段三自动补足 Wiki 补充观点的回链，替代人脑记忆。
+
+**为什么需要**：阶段二编译 Wiki 时会在概念页底部加 `#### 来自《文章名》` 补充观点，但阶段三提关联方案时 AI 容易遗漏这些文章→Wiki 的回链。`supplement_linker.py` 自动扫描所有 Wiki 页，在补充观点标题下一行插入 `- [[完整文件名]]`。
+
+```bash
+python scripts/supplement_linker.py
+```
+
+**执行流程**：
+
+1. 扫描 `02-Wiki/` 下所有概念页
+2. 找到每个 `#### 来自《文章名》` 
+3. 全库前缀匹配→解析完整文件名
+4. 在标题下行插入 `- [[完整文件名]]`
+5. 验证：每条链接精确命中 `.md` 文件，未命中的标出 `[BLANK]`
+6. 无法解析的（如短名与文件名无交集）标为「无法解析」
 
 ### git_control.py
 
