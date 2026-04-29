@@ -6,7 +6,7 @@
 
 ## 📍 Vault 信息
 
-- **Vault 路径**：`{{VAULT_PATH}}`
+- **Vault 路径**：`D:\Obsidian知识库\知识库`
 - **主要文件**：`CLAUDE.md`（知识库规则）
 - **插件目录**：`.obsidian\plugins`
 - **模板目录**：`06-系统\模板`
@@ -16,7 +16,7 @@
 ## 📁 目录结构
 
 ```
-{{VAULT_PATH}}\
+D:\Obsidian知识库\知识库\
 ├── 00-收件箱/
 │   ├── 日报/
 │   ├── 日报摘要/
@@ -137,6 +137,8 @@
 | `multi_agent_collaboration` | 多 Agent 协作 |
 | `file_reader` | 读取笔记内容 |
 | `self-improving-agent` | 自我进化 |
+| `obsidian入库` | 知识库入库 v4.2 |
+| `wiki_audit` | Wiki 定期体检 |
 
 ### 评估新 Skill
 当需要新 Skill 时：
@@ -171,7 +173,7 @@
 
 ## 📝 管理日志
 
-每次完成操作后，必须更新 `{{VAULT_PATH}}\03-项目\管理日志.md`
+每次完成操作后，必须更新 `D:\Obsidian知识库\知识库\03-项目\管理日志.md`
 
 **记录内容：**
 - 入库记录（入库了什么文章）

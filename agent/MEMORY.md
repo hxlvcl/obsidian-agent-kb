@@ -9,15 +9,15 @@ read_when:
 
 ### Agent 信息
 - **名字**：知识库管理员
-- **工作区**：`{{WORKSPACE_PATH}}`
+- **工作区**：`C:\Users\hxlvc\.qwenpaw\workspaces\knowledge-manager`
 - **知识水平**：硕士研究生水平（广泛涉猎 + 主攻领域深入）
 - **语言**：中文
 
 ### Vault 信息
-- **路径**：`{{VAULT_PATH}}`
+- **路径**：`D:\Obsidian知识库\知识库`
 - **规则文件**：`知识库管理指南.md` + `AGENTS.md`（Vault 根目录）
 - **插件目录**：`.obsidian\plugins`
-- **Git 远程仓库**：`{{GITHUB_REMOTE}}`（私有仓库，未登录显示 404 为正常行为）
+- **Git 远程仓库**：`https://github.com/hxlvcl/obsidian-`（私有仓库，未登录显示 404 为正常行为）
 
 ### 已安装 Skills
 - **obsidian入库** — 知识库入库流程
@@ -100,7 +100,6 @@ read_when:
 | 插件 | 用途 | 配置路径 | 备注 |
 |------|------|---------|------|
 | Templater | 模板自动化 | `.obsidian\plugins\Templater\data.json` | |
-| Dataview | 结构化查询 | 无需配置 | |
 | Calendar | 日历视图 | `.obsidian\plugins\calendar\data.json` | |
 | Smart Connections | 向量索引 | `.obsidian\plugins\smart-connections\data.json` | |
 | Obsidian Git | 自动备份/版本控制 | `.obsidian\plugins\obsidian-git\data.json` | v2.38.2，30分钟自动提交，已配远程推送 |
@@ -251,9 +250,4 @@ Wiki 判断：匹配→增量追加 | 无匹配有价值→新建概念页 | 无
 
 | 日期 | 更新内容 |
 |------|----------|
-| 2026-04-21 | 初始化 |
-| 2026-04-25 | 新增三环 Git 版本控制方案（权限分区、Obsidian Git 插件、git_control.py）；更新规则文件引用为 QWENPAW.md + AGENTS.md；补充用户偏好（一次性确认、精简化流程、先计划再动手等）；重写经验教训为"高价值经验"分类；剔除旧版入库流程步骤（详细流程归入规则文件）；合并去重多个教训条目 |
-| 2026-04-26 | 新增核心准则"只改用户指出的问题"；新增文件操作陷阱（YAML 字段值双引号规范、超长文件名 aliases）；整体去重合并；无冗余内容剔除 |
-| 2026-04-26 | Phase 3：入库流程升级为14步，新增强制Wiki编译步骤；三份规则文件同步更新；SKILL.md v3.0 |
-| 2026-04-27 | 新增 Wiki 概念页设计原则（枢纽而非标签）；新增错误日志系统 & 规则自检脚本；新增用户偏好（格式一致性原则、管理日志排序规则、即时记录）；新增 Git 行为确认（pre/post 正常表现）；新增编辑陷阱（edit_file 边界检查）；合并04-26多Agent目录隔离方案 |
-| 2026-04-28 | v4.0 三阶段入库流程；关联文章最终格式：DataviewJS + `→ 相关：[[双链]]`；`related` 值：完整文件名无 `.md` 无 `.md`；图谱定案：代码块/HTML注释不认 `[[链接]]`，必须正文；`edit_file` 禁止用 `---` 当锚点；`→`/`—` 在 `[[链接]]` 中截断需 alias |
+| 2026-04-29 | 新增 `safe_link_appender.py` 追加模式（累积去重）；新增 `wiki_audit.py`（五项检查）；两定时任务（项目维护 每5天 / Wiki体检 每周一）；Dataview 彻底移除；关联表格改为每行一个目标；_index.md 单独保护
