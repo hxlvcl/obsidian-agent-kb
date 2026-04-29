@@ -60,6 +60,15 @@ def is_allowed(path):
     return False, f"BLOCKED: '{rel}' 不在白名单目录"
 
 
+def _is_wiki_concept(article_name):
+    """检查文章名是否对应 Wiki 概念页（02-Wiki/ 下的页面）"""
+    full = article_name + ".md"
+    for root, _, fns in os.walk(os.path.join(VAULT, "02-Wiki")):
+        if full in fns:
+            return True
+    return False
+
+
 def new_article(target, links):
     """替换或追加 00-收件箱/ 文章中的关联文章链接（支持多次调用累积）"""
     ok, err = is_allowed(target)
@@ -81,6 +90,15 @@ def new_article(target, links):
 
     new_links = [l.strip() for l in links.split(",") if l.strip()]
     new_links = [resolve_filename(l, VAULT) for l in new_links]
+
+    # 过滤 Wiki 概念页 — 文章关联文章只能链文章
+    wiki_links = [l for l in new_links if _is_wiki_concept(l)]
+    if wiki_links:
+        for wl in wiki_links:
+            print(f"[REJECT] 禁止将 Wiki 概念页链入文章关联文章：[[{wl}]]")
+        new_links = [l for l in new_links if l not in wiki_links]
+    if not new_links:
+        return True
 
     placeholder = "（待统一建链）"
 
