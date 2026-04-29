@@ -23,7 +23,7 @@ import os
 import re
 import sys
 
-VAULT = r"D:\Obsidian知识库\知识库"
+VAULT = r"{{VAULT_PATH}}"
 ALLOWED = [r"00-收件箱", r"02-Wiki"]
 BLOCKED = [r"01-素材库", r"03-思考", r"04-项目", r"05-产出", r"06-系统"]
 
