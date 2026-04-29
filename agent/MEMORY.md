@@ -9,15 +9,15 @@ read_when:
 
 ### Agent 信息
 - **名字**：知识库管理员
-- **工作区**：`C:\Users\hxlvc\.qwenpaw\workspaces\knowledge-manager`
+- **工作区**：`{{WORKSPACE_PATH}}`
 - **知识水平**：硕士研究生水平（广泛涉猎 + 主攻领域深入）
 - **语言**：中文
 
 ### Vault 信息
-- **路径**：`D:\Obsidian知识库\知识库`
+- **路径**：`{{VAULT_PATH}}`
 - **规则文件**：`知识库管理指南.md` + `AGENTS.md`（Vault 根目录）
 - **插件目录**：`.obsidian\plugins`
-- **Git 远程仓库**：`https://github.com/hxlvcl/obsidian-`（私有仓库，未登录显示 404 为正常行为）
+- **Git 远程仓库**：`{{GITHUB_REMOTE}}`（私有仓库，未登录显示 404 为正常行为）
 
 ### 已安装 Skills
 - **obsidian入库** — 知识库入库流程
