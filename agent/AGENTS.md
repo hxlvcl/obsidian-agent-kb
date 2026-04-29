@@ -64,9 +64,9 @@
 | 插件 | 用途 | 配置路径 |
 |------|------|---------|
 | Templater | 模板自动化 | `.obsidian\plugins\Templater\data.json` |
-| Dataview | 结构化查询 | 无需配置 |
 | Calendar | 日历视图 | `.obsidian\plugins\calendar\data.json` |
 | Smart Connections | 向量索引 | `.obsidian\plugins\smart-connections\data.json` |
+| Obsidian Git | 自动备份 | `.obsidian\plugins\obsidian-git\data.json` |
 
 #### 安装新插件
 1. 访问 `https://obsidian.md/plugins` 或 GitHub 搜索
