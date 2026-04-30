@@ -1,6 +1,8 @@
-[English](README.en.md) | 中文
-
 # Obsidian + AI Agent 本地知识库管理方案
+
+<p align="center">
+  <a href="README.en.md">English</a> | <strong>中文</strong>
+</p>
 
 > 让 AI Agent 帮你管 Obsidian 知识库，不乱改笔记。
 > 权限分区 + 脚本硬约束 + Git 版本控制，每一步你说了算。

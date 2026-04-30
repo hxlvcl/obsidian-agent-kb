@@ -1,6 +1,8 @@
-[中文](README.md) | English
-
 # Obsidian + AI Agent Knowledge Base Management
+
+<p align="center">
+  <strong>English</strong> | <a href="README.md">中文</a>
+</p>
 
 > Let AI Agents manage your Obsidian vault — without trashing your notes.
 > Permission zones + script-level hard constraints + Git version control. You decide every step.
