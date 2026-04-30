@@ -587,4 +587,4 @@ Early habit: "work first, write log after." Result: forgetting, missing entries,
 
 ## License
 
-MIT — use freely, modify freely, distribute freely.
+MIT License — see [LICENSE](LICENSE) for full terms.

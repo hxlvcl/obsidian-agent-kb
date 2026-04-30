@@ -619,4 +619,4 @@ Git log 只告诉你"什么时候提交了"，不告诉你"为什么"。
 
 ## License
 
-MIT — 随便用，随便改，随便分发。
+MIT License — 详见 [LICENSE](LICENSE) 文件。
