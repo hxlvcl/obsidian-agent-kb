@@ -1,3 +1,5 @@
+[中文](README.md) | English
+
 # Obsidian + AI Agent Knowledge Base Management
 
 > Let AI Agents manage your Obsidian vault — without trashing your notes.

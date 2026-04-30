@@ -1,3 +1,5 @@
+[English](README.en.md) | 中文
+
 # Obsidian + AI Agent 本地知识库管理方案
 
 > 让 AI Agent 帮你管 Obsidian 知识库，不乱改笔记。
