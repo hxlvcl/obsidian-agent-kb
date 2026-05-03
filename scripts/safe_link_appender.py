@@ -45,7 +45,20 @@ def resolve_filename(partial, vault):
                 full = fn[:-3]
                 if best is None or len(full) > len(best):
                     best = full
-    return best if best else partial  # 找不到就原样返回
+    if best:
+        return best
+    # 全文匹配兜底 → 最长胜出，打印警告
+    best = None
+    for root, _, fns in os.walk(vault):
+        for fn in fns:
+            if partial in fn and fn.endswith(".md"):
+                full = fn[:-3]
+                if best is None or len(full) > len(best):
+                    best = full
+    if best:
+        print(f"  [WARN] 前缀未匹配，全文命中：\"{partial}\" → \"{best}\"")
+        return best
+    return partial  # 完全找不到就原样返回
 
 
 def is_allowed(path):
