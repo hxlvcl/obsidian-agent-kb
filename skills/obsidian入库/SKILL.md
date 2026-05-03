@@ -179,7 +179,11 @@ tags: ["标签1", "标签2"]
 | 涉及 Wiki 概念页 | `--wiki-concept --target "02-Wiki/xx/概念.md" --article "A"` |
 | 索引无概念页 | `--wiki-index --category "01-科技" --entry "[[A]] — 摘要"` |
 
-同一篇文章多次调用自动累积去重。⚠️ 脚本自动解析完整文件名（短名→全库前缀匹配）。`--new-article` 自动拦截 Wiki 概念页链接。
+同一篇文章多次调用自动累积去重。
+
+⚠️ `--links` 必须先 `dir /b` 查真实文件名开头，禁止 AI 缩写。  
+⚠️ `resolve_filename` 失败→None→`[REJECT]`，必须回头查 `dir /b` 重跑。  
+⚠️ `--new-article` 自动拦截 Wiki 概念页链接。
 
 ```bash
 python scripts/safe_link_appender.py --new-article --target "00-收件箱/A.md" --links "B"
