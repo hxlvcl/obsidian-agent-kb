@@ -29,40 +29,21 @@ BLOCKED = [r"01-素材库", r"03-思考", r"04-项目", r"05-产出", r"06-系�
 
 
 def resolve_filename(partial, vault):
-    """将部分文件名解析为完整文件名（去 .md）。"""
+    """将部分文件名解析为完整文件名（去 .md）。仅精确+前缀匹配，不兜底。"""
     if not partial:
         return partial
-    # 先查精确匹配
-    full_with_ext = partial + ".md"
-    for root, _, fns in os.walk(vault):
-        if full_with_ext in fns:
-            return partial  # 已是完整名
+    # 精确匹配
+    if partial + ".md" in {fn for _, _, fns in os.walk(vault) for fn in fns}:
+        return partial
     # 前缀匹配 → 最长胜出
     best = None
-    for root, _, fns in os.walk(vault):
+    for _, _, fns in os.walk(vault):
         for fn in fns:
             if fn.startswith(partial) and fn.endswith(".md"):
                 full = fn[:-3]
                 if best is None or len(full) > len(best):
                     best = full
-    if best:
-        return best
-    # 全文匹配兜底 → 唯一命中才用，多命中报错
-    candidates = []
-    for root, _, fns in os.walk(vault):
-        for fn in fns:
-            if partial in fn and fn.endswith(".md"):
-                candidates.append(fn[:-3])
-    if len(candidates) == 1:
-        best = candidates[0]
-        print(f"  [WARN] 前缀未匹配，全文命中：\"{partial}\" → \"{best}\"")
-        return best
-    elif len(candidates) > 1:
-        print(f"  [ERROR] 全文匹配到 {len(candidates)} 个文件：\"{partial}\"")
-        for c in candidates:
-            print(f"    → \"{c}\"")
-        print(f"  [ERROR] 请改用更精确的前缀，放弃本次匹配")
-    # 完全找不到就原样返回
+    return best if best else partial
 
 
 def is_allowed(path):
