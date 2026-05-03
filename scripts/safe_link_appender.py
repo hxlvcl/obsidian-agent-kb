@@ -29,7 +29,7 @@ BLOCKED = [r"01-素材库", r"03-思考", r"04-项目", r"05-产出", r"06-系�
 
 
 def resolve_filename(partial, vault):
-    """将部分文件名解析为完整文件名（去 .md）。仅精确+前缀匹配，不兜底。"""
+    """将部分文件名解析为完整文件名（去 .md）。仅精确+前缀匹配。"""
     if not partial:
         return partial
     # 精确匹配
@@ -43,7 +43,16 @@ def resolve_filename(partial, vault):
                 full = fn[:-3]
                 if best is None or len(full) > len(best):
                     best = full
-    return best if best else partial
+    return best if best else None  # 找不到返回 None，强制 AI 回去确认文件名
+
+
+def _resolve_or_fail(name, vault):
+    """解析文件名，失败时报错返回 None。"""
+    result = resolve_filename(name, vault)
+    if result is None:
+        print(f"  [REJECT] 无法解析文件名：\"{name}\"")
+        print(f"  [REJECT] 请用 dir /b 查证真实文件名开头后重新传参")
+    return result
 
 
 def is_allowed(path):
@@ -87,7 +96,7 @@ def new_article(target, links):
         return False
 
     new_links = [l.strip() for l in links.split(",") if l.strip()]
-    new_links = [resolve_filename(l, VAULT) for l in new_links]
+    new_links = [r for l in new_links if (r := _resolve_or_fail(l, VAULT)) is not None]
 
     # 过滤 Wiki 概念页 — 文章关联文章只能链文章
     wiki_links = [l for l in new_links if _is_wiki_concept(l)]
@@ -158,7 +167,9 @@ def wiki_concept(target, article):
         print(f"[ERROR] 读取失败：{target} — {e}")
         return False
 
-    article = resolve_filename(article, VAULT)
+    article = _resolve_or_fail(article, VAULT)
+    if article is None:
+        return False
     line = f"- [[{article}]]"
 
     # 找到 **关联文章** 区块，在区块内追加
