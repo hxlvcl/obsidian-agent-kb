@@ -47,18 +47,22 @@ def resolve_filename(partial, vault):
                     best = full
     if best:
         return best
-    # 全文匹配兜底 → 最长胜出，打印警告
-    best = None
+    # 全文匹配兜底 → 唯一命中才用，多命中报错
+    candidates = []
     for root, _, fns in os.walk(vault):
         for fn in fns:
             if partial in fn and fn.endswith(".md"):
-                full = fn[:-3]
-                if best is None or len(full) > len(best):
-                    best = full
-    if best:
+                candidates.append(fn[:-3])
+    if len(candidates) == 1:
+        best = candidates[0]
         print(f"  [WARN] 前缀未匹配，全文命中：\"{partial}\" → \"{best}\"")
         return best
-    return partial  # 完全找不到就原样返回
+    elif len(candidates) > 1:
+        print(f"  [ERROR] 全文匹配到 {len(candidates)} 个文件：\"{partial}\"")
+        for c in candidates:
+            print(f"    → \"{c}\"")
+        print(f"  [ERROR] 请改用更精确的前缀，放弃本次匹配")
+    # 完全找不到就原样返回
 
 
 def is_allowed(path):
